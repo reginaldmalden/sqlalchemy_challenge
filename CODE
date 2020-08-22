@@ -1,0 +1,66 @@
+%matplotlib inline
+from matplotlib import style
+style.use('fivethirtyeight')
+import matplotlib.pyplot as plt
+
+
+import numpy as np
+import pandas as pd
+
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
+
+engine = create_engine("sqlite:///hawaii.sqlite")
+conn=engine.connect
+
+Base = automap_base()
+Base.prepare(engine, reflect=True)
+
+# View all of the classes that automap found
+Base.classes.keys()
+
+# Save references to each table
+Measurement = Base.classes.measurement
+Station = Base.classes.station
+
+# Create our session (link) from Python to the DB
+session = Session(engine)
+
+#sql query to open the table
+data=engine.execute("select * from Measurement")
+for record in data:
+    print(record)
+
+#query the desired dates
+    data=engine.execute("select * from Measurement where id between 6981 and 6993")
+
+for record in data:
+    print(record)
+    
+#Open date and percipitation for analysis
+prcp_data=engine.execute("Select date, prcp from Measurement")
+for record in prcp_data:
+    print(record)
+    
+import sqlite3 
+db=sqlite3.connect('hawaii.sqlite')
+
+#Design a query to retrieve the last 12 months of precipitation data.
+#Select only the date and prcp values.
+data_pd=pd.read_sql_query("Select  date, prcp  from Measurement where id between 1 and 330", db)
+data_pd
+
+
+#Load the query results into a Pandas DataFrame and set the index to the date column.
+df=data_pd
+df.plot(kind='line',x='date',y='prcp',color='blue')
+plt.show()
+
+#Design a query to calculate the total number of stations.
+station_table=engine.execute("select count (name) from Station")
+
+for record in station_table:
+    print(record)
+    
